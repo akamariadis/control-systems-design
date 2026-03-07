@@ -176,3 +176,11 @@ for i = 1:length(K)
    step(T);
 end
 legend('K=1', 'K=5', 'K=50');
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 2
+
+clear;
+clf;
+close all;
+clc;
+
