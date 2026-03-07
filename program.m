@@ -236,7 +236,7 @@ xlabel('Χρόνος (sec)');
 ylabel('Θέση');
 legend('Location', 'Southeast');
 
-% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 4 (ΓΤΡ)
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 3 (ΓΤΡ)
 
 clear;
 clf;
@@ -246,21 +246,13 @@ clc;
 s = tf('s');
 G = 1 / (s^2 + s);
 z = 2;
-C_pd_structure = (s + z); 
-L = C_pd_structure * G;
+G_pd = G * (s + z);
 figure;
-subplot(1, 2, 1);
-rlocus(G);
-title('Παλιός ΓΤΡ (P-Control)');
-axis([-5 1 -3 3]); 
-grid on;
-xline(-0.5, 'r--', 'LineWidth', 1.5);
-text(-0.4, 2, 'Αργή Απόσβεση', 'Color', 'red');
-subplot(1, 2, 2);
-rlocus(L);
-title(['Νέος ΓΤΡ (PD-Control με zero στο -', num2str(z), ')']);
-axis([-5 1 -3 3]); 
-grid on;
+rlocus(G_pd);
 hold on;
-plot(-z, 0, 'ro', 'MarkerSize', 8, 'LineWidth', 2, 'DisplayName', 'Zero (PD)');
+grid on;
+plot(-z, 0, 'r o', 'MarkerSize', 10, 'LineWidth', 2, 'DisplayName', 'Zero (PD)');
+title('Γεωμετρικός Τόπος Ριζών με PD Ελεγκτή');
 legend('Location', 'best');
+xlim([-6 2]);
+ylim([-3 3]);
