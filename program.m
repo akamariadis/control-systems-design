@@ -256,3 +256,31 @@ title('Γεωμετρικός Τόπος Ριζών με PD Ελεγκτή');
 legend('Location', 'best');
 xlim([-6 2]);
 ylim([-3 3]);
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 4
+
+clear;
+clf;
+close all;
+clc;
+
+s = tf('s');
+G = 1 / (s^2 + s);
+Kp = 20;
+Kd = 10;
+C_pd = Kd*s + Kp;
+T_dist = feedback(G, C_pd);
+figure;
+subplot(2,1,1);
+step(T_dist);
+grid on;
+title('Απόκριση σε Βηματική Διαταραχή (d=1)');
+ylabel('Θέση x(t)');
+xlabel('Χρόνος (sec)');
+expected_error = 1/Kp;
+yline(expected_error, 'r--', 'LineWidth', 1.5);
+legend('Απόκριση Συστήματος', ['Θεωρητικό Σφάλμα (1/Kp = ' num2str(expected_error) ')']);
+subplot(2,1,2);
+bode(T_dist);
+grid on;
+title('Διάγραμμα Bode (Disturbance to Output)');
