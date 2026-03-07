@@ -157,3 +157,22 @@ final_v = v_fb(end);
 error = r - final_v;
 fprintf('Τελική Ταχύτητα (με Feedback):
 fprintf('Σφάλμα μόνιμης κατάστασης:
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 1
+
+clear;
+clf;
+close all;
+clc;
+
+s = tf('s');
+G = 1 / (s*(s+1));
+K = [1, 5, 50];
+figure;
+hold on;
+grid on;
+for i = 1:length(K)
+   T = feedback(K(i)*G, 1);
+   step(T);
+end
+legend('K=1', 'K=5', 'K=50');
