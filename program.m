@@ -285,7 +285,7 @@ bode(T_dist);
 grid on;
 title('Διάγραμμα Bode (Disturbance to Output)');
 
-% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 4
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 5
 
 clear;
 clf;
@@ -315,3 +315,44 @@ bode(T_dist_PD, 'r--');
 bode(T_dist_PID, 'b');
 legend('PD', 'PID');
 title('Bode Plot: Disturbance Rejection');
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 6
+
+clear;
+clf;
+close all;
+clc;
+
+s = tf('s');
+G = 1 / (s^2 + s);
+Kp = 20; 
+Kd = 10;
+Ki = 5;
+C_pid = Kp + Kd*s + Ki/s;
+T_ref = feedback(C_pid * G, 1);
+figure;
+bode(T_ref);
+grid on;
+title('Διάγραμμα Bode Κλειστού Βρόχου (Tracking Capability)');
+[bw, ~] = bandwidth(T_ref);
+disp(['Το εύρος ζώνης (Bandwidth) είναι περίπου: ', num2str(bw), ' rad/s']);
+t = 0:0.01:10;
+w_low = 0.5; % rad/s
+r_low = sin(w_low * t);
+[y_low, ~] = lsim(T_ref, r_low, t);
+w_high = 20; % rad/s (Πολύ γρήγορο σήμα)
+r_high = sin(w_high * t);
+[y_high, ~] = lsim(T_ref, r_high, t);
+figure;
+subplot(2,1,1);
+plot(t, r_low, 'k--', 'LineWidth', 1.5); hold on;
+plot(t, y_low, 'b', 'LineWidth', 2);
+title(['Χαμηλή Συχνότητα (\omega = ', num2str(w_low), ' rad/s): Τέλεια Παρακολούθηση']);
+legend('Είσοδος (Reference)', 'Έξοδος (Output)');
+grid on;
+subplot(2,1,2);
+plot(t, r_high, 'k--', 'LineWidth', 1.5); hold on;
+plot(t, y_high, 'r', 'LineWidth', 2);
+title(['Υψηλή Συχνότητα (\omega = ', num2str(w_high), ' rad/s): Αδυναμία Παρακολούθησης']);
+legend('Είσοδος', 'Έξοδος');
+grid on;
