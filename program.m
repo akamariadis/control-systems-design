@@ -284,3 +284,34 @@ subplot(2,1,2);
 bode(T_dist);
 grid on;
 title('Διάγραμμα Bode (Disturbance to Output)');
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 4
+
+clear;
+clf;
+close all;
+clc;
+
+s = tf('s');
+G = 1 / (s^2 + s);
+Kp = 20; 
+Kd = 10;
+C_pd = Kp + Kd*s;
+Ki = 10; 
+C_pid = Kp + Kd*s + Ki/s;
+T_dist_PD  = feedback(G, C_pd);
+T_dist_PID = feedback(G, C_pid);
+figure;
+subplot(2,1,1);
+hold on; grid on;
+step(T_dist_PD, 'r--');
+step(T_dist_PID, 'b');
+legend('PD (Μόνιμο Σφάλμα)', 'PID (Μηδενικό Σφάλμα)');
+title('Απόκριση σε Σταθερή Διαταραχή (d=1)');
+ylabel('Θέση x(t)');
+subplot(2,1,2);
+hold on; grid on;
+bode(T_dist_PD, 'r--');
+bode(T_dist_PID, 'b');
+legend('PD', 'PID');
+title('Bode Plot: Disturbance Rejection');
