@@ -195,3 +195,72 @@ title('Γεωμετρικός Τόπος Ριζών (Root Locus)');
 legend('Root Locus', 'Σταθερό Πραγματικό Μέρος');
 xlim([-3 1]);
 ylim([-5 5]);
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 3 (Σύγκριση Αποκρίσεων)
+
+clear;
+clf;
+close all;
+clc;
+
+s = tf('s');
+G = 1 / (s^2 + s);
+Zero_loc = 2; 
+C_pd_structure = s + Zero_loc; 
+figure;
+subplot(1,2,1);
+rlocus(G);
+title('ΓΤΡ με P-Control (Παλιό)');
+axis([-5 1 -3 3]); grid on;
+xline(-0.5, 'r--', 'DisplayName', 'Όριο ταχύτητας');
+subplot(1,2,2);
+rlocus(C_pd_structure * G); 
+title('ΓΤΡ με PD-Control (Νέο)');
+axis([-5 1 -3 3]); grid on;
+hold on; plot(-Zero_loc, 0, 'ro', 'MarkerSize', 8, 'LineWidth', 2);
+legend('Root Locus', 'Zero at -2');
+figure;
+hold on; grid on;
+K = 10;
+T_p = feedback(K * G, 1);
+% C(s) = 10 * (s + 2) = 10s + 20
+T_pd = feedback(K * C_pd_structure * G, 1);
+t = 0:0.01:10;
+[y_p, t_p]   = step(T_p, t);
+[y_pd, t_pd] = step(T_pd, t);
+plot(t_p, y_p, 'r--', 'LineWidth', 1.5, 'DisplayName', 'P-Control Only');
+plot(t_pd, y_pd, 'b', 'LineWidth', 2, 'DisplayName', 'PD-Control');
+yline(1, 'k:');
+title('Σύγκριση Απόκρισης: P vs PD');
+xlabel('Χρόνος (sec)');
+ylabel('Θέση');
+legend('Location', 'Southeast');
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 4 (ΓΤΡ)
+
+clear;
+clf;
+close all;
+clc;
+
+s = tf('s');
+G = 1 / (s^2 + s);
+z = 2;
+C_pd_structure = (s + z); 
+L = C_pd_structure * G;
+figure;
+subplot(1, 2, 1);
+rlocus(G);
+title('Παλιός ΓΤΡ (P-Control)');
+axis([-5 1 -3 3]); 
+grid on;
+xline(-0.5, 'r--', 'LineWidth', 1.5);
+text(-0.4, 2, 'Αργή Απόσβεση', 'Color', 'red');
+subplot(1, 2, 2);
+rlocus(L);
+title(['Νέος ΓΤΡ (PD-Control με zero στο -', num2str(z), ')']);
+axis([-5 1 -3 3]); 
+grid on;
+hold on;
+plot(-z, 0, 'ro', 'MarkerSize', 8, 'LineWidth', 2, 'DisplayName', 'Zero (PD)');
+legend('Location', 'best');
