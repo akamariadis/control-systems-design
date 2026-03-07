@@ -184,3 +184,14 @@ clf;
 close all;
 clc;
 
+s = tf('s');
+G = 1 / (s * (s + 1));
+figure;
+grid on;
+hold on;
+rlocus(G);
+xline(-0.5, 'r--', 'LineWidth', 2, 'DisplayName', 'Real Part = -0.5');
+title('Γεωμετρικός Τόπος Ριζών (Root Locus)');
+legend('Root Locus', 'Σταθερό Πραγματικό Μέρος');
+xlim([-3 1]);
+ylim([-5 5]);
