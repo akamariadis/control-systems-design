@@ -356,3 +356,89 @@ plot(t, y_high, 'r', 'LineWidth', 2);
 title(['Υψηλή Συχνότητα (\omega = ', num2str(w_high), ' rad/s): Αδυναμία Παρακολούθησης']);
 legend('Είσοδος', 'Έξοδος');
 grid on;
+
+% ΜΕΡΟΣ 2 - ΕΡΩΤΗΜΑ 7
+
+clear;
+clf;
+close all;
+clc;
+
+Kp = 20;
+Ki = 5;
+Kd = 10;
+dt = 0.001;
+T_final = 15;
+t = 0:dt:T_final;
+U_lim = 5;
+function [y, u_sig, integ_val] = run_simulation(ref_val, use_antiwindup, ...
+                                    Kp, Ki, Kd, dt, t, U_lim)
+    N = length(t);
+    y = zeros(1, N);
+    v = zeros(1, N);
+    u_sig = zeros(1, N);
+    integ_val = zeros(1, N);
+    integral = 0;
+    prev_error = 0;    
+    x_now = 0;
+    v_now = 0; 
+    for k = 1:N
+        r = ref_val;
+        error = r - x_now;        
+        P = Kp * error;
+        D = Kd * (error - prev_error) / dt;
+        u_trial = P + integral + D;  
+        if use_antiwindup
+            if (u_trial > U_lim && error > 0) || (u_trial < -U_lim && error < 0)
+                integral = integral; 
+            else
+                integral = integral + error * dt;
+            end
+        else
+            integral = integral + error * dt;
+        end        
+        u_calc = P + integral + D;        
+        if u_calc > U_lim
+            u = U_lim;
+        elseif u_calc < -U_lim
+            u = -U_lim;
+        else
+            u = u_calc;
+        end        
+        dv = (-v_now + u) * dt;
+        v_now = v_now + dv;
+        x_now = x_now + v_now * dt;        
+        y(k) = x_now;
+        u_sig(k) = u;
+        integ_val(k) = integral;
+        prev_error = error;
+    end
+end
+[y1, u1, i1] = run_simulation(1, false, Kp, Ki, Kd, dt, t, U_lim);
+[y2, u2, i2] = run_simulation(10, false, Kp, Ki, Kd, dt, t, U_lim);
+[y3, u3, i3] = run_simulation(10, true, Kp, Ki, Kd, dt, t, U_lim);
+figure('Position', [100, 100, 1000, 800]);
+subplot(3,1,1);
+plot(t, y1, 'g', 'LineWidth', 1.5); hold on;
+plot(t, y2/10, 'r--', 'LineWidth', 1.5);
+plot(t, y3/10, 'b', 'LineWidth', 1.5);
+yline(1, 'k:');
+title('1. Σύγκριση Αποκρίσεων (Κανονικοποιημένες)');
+legend('Step=1 (Linear)', 'Step=10 (No Anti-windup)', 'Step=10 (With Anti-windup)');
+ylabel('Θέση (Norm)'); grid on;
+text(2, 0.4, '\leftarrow Η κόκκινη γραμμή δείχνει μη-γραμμικότητα (Overshoot)', 'Color', 'r');
+subplot(3,1,2);
+plot(t, u2, 'r--', 'LineWidth', 1.5); hold on;
+plot(t, u3, 'b', 'LineWidth', 1.5);
+yline(5, 'k--', 'LineWidth', 2);
+yline(-5, 'k--', 'LineWidth', 2);
+title('2. Σήμα Ελέγχου u(t) [Όριο = 5]');
+legend('No Anti-windup', 'With Anti-windup', 'Saturation Limits');
+ylabel('Είσοδος u'); grid on; ylim([-6 6]);
+subplot(3,1,3);
+plot(t, i2, 'r--', 'LineWidth', 1.5); hold on;
+plot(t, i3, 'b', 'LineWidth', 1.5);
+title('3. Τιμή Ολοκληρωτή (Integrator Value)');
+legend('Windup (Συσσωρεύει λάθος)', 'Clamped (Παγώνει στον κορεσμό)');
+ylabel('Integral Term'); grid on;
+xlabel('Χρόνος (sec)');
