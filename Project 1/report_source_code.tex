@@ -1,0 +1,442 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Speed and Position Control, using P, PD and PID Controllers}
+
+\author{\IEEEauthorblockN{Angelos Kamariadis}
+\IEEEauthorblockA{\textit{School of Electrical and Computer Engineering} \\
+\textit{National Technical University of Athens}\\
+Athens, Greece \\
+angeloskamariadis@gmail.com}
+}
+
+\maketitle
+
+\begin{abstract}
+This project is structured into two parts, each addressing distinct analytical subjects and objectives. The first section investigates an automotive cruise control system, which is modeled using a simple first - order linear non - homogeneous ordinary differential equation. The second section addresses the concept of position control, defined as the precise displacement and maintenance of a mechanical system at a desired position. Phenomena such as overshoot, settling time, and damping were analyzed. However, while it is possible to formulate models that describe the dynamics of a given system in detail, a simplified dynamic was adopted for this specific application, described by a simple second-order linear non-homogeneous ordinary differential equation.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Control Systems, P Controllers, PD Controller, PID Controller, MATLAB
+\end{IEEEkeywords}
+
+\section{SECTION 1}
+
+We use the following simple linear description for a car's cruise control system:
+
+\begin{equation}
+    \dot{v} = -\alpha v + b u + d,
+\end{equation}
+
+where: $v$ is the car's speed, $u$ is its acceleration (or deceleration), $\alpha$ and $b$ are positive constants associated with friction, mass, and the car's engine power, while $d$ is an external disturbance applied to the vehicle due to the slope of the road it is traveling on.
+
+The nominal values of $\alpha$ and $b$ are: $\alpha=b=1$.
+
+\subsection{Calculation of the transfer function G, from the control input to the output.}
+Considering a proportional controller, with disturbance $d=0$ and $\alpha=b=1$, we calculate the transfer function using the following method.
+
+Taking the Laplace transform of the differential equation (assuming zero initial conditions):
+\begin{equation}
+    sV(s) = -1 \cdot V(s) + 1 \cdot U(s)
+\end{equation}
+
+Rearranging the terms to isolate the input $U(s)$ and output $V(s)$:
+\begin{equation}
+    sV(s) + V(s) = U(s)
+\end{equation}
+\begin{equation}
+    V(s)(s + 1) = U(s)
+\end{equation}
+
+The transfer function $G(s)$ from the control input to the output is:
+\begin{equation}
+    G(s) = \frac{V(s)}{U(s)} = \frac{1}{s + 1}
+\end{equation}
+
+Therefore, the transfer function from the control input to the output is:
+
+\begin{equation}
+    G(s) = \frac{V(s)}{U(s)} = \frac{1}{s+1}
+\end{equation}
+
+\subsection{Determination of step responses}
+We create a closed-loop system consisting of a proportional controller, in order to analyze how the gain $K$ affects the response and the steady-state error.
+
+The transfer function of the system to be controlled is: $G(s) = \frac{1}{s+1}$
+
+The transfer function of the controller is: $C(s) = K$
+
+Therefore, the closed-loop transfer function is:
+
+\begin{equation}
+    T(s) = \frac{C(s)G(s)}{1 + C(s)G(s)} = \frac{K}{s + 1 + K}
+\end{equation}
+
+Using MATLAB, the step responses were calculated for the following gain values: $K = 1, 5, 10, 50$.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig1.png}
+    \caption{Step response of the cruise control system for different gain values ($K=1, 5, 10, 50$). The plot illustrates the reduction in steady-state error as the gain $K$ increases.}
+    \label{fig:step_response}
+\end{figure}
+
+\begin{equation}
+    e_{ss} = 1 - \lim_{s \to 0} s T(s) \frac{1}{s} \implies e_{ss} = \frac{1}{1+K} \implies e_{ss} \to 0 \text{ as } K \to \infty
+\end{equation}
+
+We observe that as $K$ increases, the steady-state error decreases. However, it is never completely eliminated with a simple proportional controller, because infinite (or very large) gain is not practically feasible in first-order systems.
+
+\subsection{PI Controller Design}
+With a simple proportional controller (P), a steady-state error is always present. This occurs because the controller requires an error signal to produce a control input. To eliminate this error, we add an integral term (I), moving to the use of a PI controller. The integrator accumulates the error over time; as long as an error exists, the integrator's output increases, forcing the system to compensate until the error becomes exactly zero.
+
+The transfer function of the PI controller is: $C_{PI}(s) = \frac{K_p s + K_i}{s}$, while the open-loop transfer function is: $L(s) = \frac{K_p s + K_i}{s(s+1)}$.
+
+We choose the values of $K_p$ and $K_i$ in such a way as to ensure stability.
+
+\begin{equation}
+    1 + L(s) = 0 \implies s^2 + (1 + K_p)s + K_i = 0
+\end{equation}
+
+To ensure stability, $1 + K_p > 0$ and $K_i > 0$.
+
+We choose the following values: $K_p = K_i = 1$.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig2.png} 
+    \caption{Step response of the cruise control system using a Proportional (P) controller. As shown in the legend, increasing the gain $K_p$ reduces the steady-state error (from 0.50 down to 0.02), but the error remains non-zero.}
+    \label{fig:p_controller_response}
+\end{figure}
+
+\subsection{Limitations of High Proportional Gain}
+While increasing the gain $K$ theoretically reduces the steady-state error, it is not a practical solution in real-world control engineering for the following reasons:
+
+\begin{itemize}
+    \item \textbf{Instability and Oscillations:} High gains can cause the system to over-correct for small errors, leading to oscillations or total instability, especially when time delays are present in the feedback loop.
+    \item \textbf{Actuator Saturation:} Physical systems have limits. In a car, the engine cannot provide infinite power. A very high gain may demand a control signal that exceeds the physical capabilities of the throttle or fuel system (saturation).
+    \item \textbf{Noise Amplification:} High gain multiplies the measurement noise from sensors (like the speedometer). This creates "chatter" in the control signal, which can wear out mechanical components.
+    \item \textbf{Mechanical Stress:} Sudden, aggressive changes in control inputs caused by high $K$ values can lead to violent mechanical transitions, damaging the drivetrain or engine over time.
+\end{itemize}
+
+Rather than increasing $K$ toward infinity, we introduce an \textbf{Integral (I) term} to eliminate the steady-state error without compromising the stability or physical integrity of the system.
+
+Because real-world imperfections, such as delays and dynamics that were initially ignored, push the system toward instability.
+
+To achieve $e_{ss} < 0.5\% \implies \frac{1}{1+K_p} < 0.005 \implies K_p + 1 > 200 \implies K > 199$.
+Therefore, we choose: $K_p = 200$.
+
+Given that the actuator dynamics are described by the transfer function:
+\begin{equation}
+    G_a(s) = \frac{1}{\left(1 + \frac{s}{100}\right)^2}
+\end{equation}
+
+We observe that two additional poles appear at $s = -100$. Consequently, when the system attempts to respond very rapidly, these poles introduce phase lag, leading to instability.
+
+
+The following graphs illustrate the oscillations introduced by the actuator dynamics in comparison to the unstable behavior of the system when a pure time delay of $0.01$ sec is applied instead of the actuator dynamics.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.3\textwidth]{fig3.1.png}
+    \caption{Impact of high gain on non-ideal systems}
+    \label{fig:first}
+    
+    \vspace{0.5cm}
+    
+    \includegraphics[width=0.3\textwidth]{fig3.2.png}
+    \caption{Impact of high gain on non-ideal systems}
+    \label{fig:second}
+\end{figure}
+
+\subsection{Why Feedforward Alone is Insufficient}
+While a feedforward term can improve the response speed by compensating for known disturbances (like a measured road slope), it has significant limitations:
+
+\begin{itemize}
+    \item \textbf{Model Dependency:} Feedforward control is "open-loop" in nature. It assumes our model of the car ($\alpha, b$) is perfect. If the car is heavier than expected (e.g., with extra passengers), the feedforward signal will be incorrect.
+    \item \textbf{Unmeasured Disturbances:} Feedforward can only cancel disturbances that we can measure. It cannot react to sudden gusts of wind or changes in tire friction that aren't in the model.
+    \item \textbf{Steady-State Error:} Without a feedback loop (P, PI, or PID), the system has no way of knowing if it actually reached the target speed.
+\end{itemize}
+
+For these reasons, feedforward is typically used as a \textit{supplement} to feedback control, not a replacement for it.
+
+\textbf{(A) The goal of the Feedforward term is to predict the required input in order to achieve the desired output.}
+
+To make this prediction, we use the equilibrium equation $\dot{v} = 0$. For the nominal values of the system, the equilibrium equation is:
+\begin{equation}
+    0 = -1v + 1u \implies u = v
+\end{equation}
+\begin{equation}
+    \text{For a given output } y = r \implies v = r \implies u = r
+\end{equation}
+Given that $u = k_r r$ (from the controller structure), it follows that $k_r = 1$.
+
+\begin{itemize}
+    \item \textbf{Friction:} Increased by 10\% $\implies \alpha' = 1.1$
+    \item \textbf{Power:} Decreased by 10\% $\implies b' = 0.9$
+    \item \textbf{Disturbance:} 10\% of nominal value $\implies d' = 0.1$
+\end{itemize}
+
+Using the values above in the equilibrium equation $\dot{v} = -\alpha v + bu + d$, we calculate the system response (vehicle speed):
+\begin{equation}
+    0 = -1.1v + 0.9(1) + 0.1 \implies 1.1v = 1.0 \implies v \approx 0.909
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig4.png} 
+    \caption{Response, Only Feedforward}
+    \label{fig:p_controller_response}
+\end{figure}
+
+From the graph above, we observe that in the ideal case, the system converges to the reference value.
+
+\textbf{(B) Now, we add a proportional term $k_p(r - y)$, which detects the error and corrects it.}
+
+\begin{equation}
+    \implies u = k_r r + k_p(r - y)
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig5.png} 
+    \caption{Feedback and Feedforward Response}
+    \label{fig:p_controller_response}
+\end{figure}
+
+From the graph above, we observe that a steady-state error still exists. This is due to the fact that the feedforward gain $k_r$ refers to the ideal system, while the actual system parameters for $\alpha$ and $b$ deviate by 10\%, and the disturbance deviates by 90\% from the ideal system values.
+
+\section{SECTION 2}
+The second section addresses the concept of position control, defined as the precise displacement and maintenance of a mechanical system at a desired position. Phenomena such as overshoot, settling time, and damping were analyzed. However, while it is possible to formulate models that describe the dynamics of a given system in detail, a simplified dynamic was adopted for this specific application, described by a simple second-order linear non-homogeneous ordinary differential equation.
+
+\subsection{System Behavior for Step Input and Proportional Controller}
+The position control system analyzed in Part 2 is a second-order system, which introduces the concepts of overshoot, settling time, and damping. The system is described by the following differential equation:
+\begin{equation}
+    \ddot{x} = -\alpha \dot{x} + bu + d
+\end{equation}
+where $x$ is the position, $u$ is the control input, and $d$ is an external disturbance. Taking $\alpha=b=1$ and assuming zero disturbance ($d=0$), the open-loop transfer function is derived as follows:
+\begin{equation}
+    s^2 X(s) = -s X(s) + U(s) \implies X(s) = \frac{U(s)}{s^2 + s}
+\end{equation}
+\begin{equation}
+    G(s) = \frac{X(s)}{U(s)} = \frac{1}{s(s+1)}
+\end{equation}
+
+By introducing a proportional controller $C(s) = K_p$, the resulting closed-loop transfer function $T(s)$ is:
+\begin{equation}
+    T(s) = \frac{K_p G(s)}{1 + K_p G(s)} = \frac{K_p}{s^2 + s + K_p}
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig6.png} 
+    \caption{Step Response}
+    \label{fig:p_controller_response}
+\end{figure}
+
+From the graph above, we conclude that regardless of how much the gain is increased, the time required for the system to stop oscillating (approximately 8 seconds) remains unchanged. Increasing the gain only leads to a higher oscillation frequency, while the oscillation amplitude decays at the same slow rate. Consequently, the response cannot become substantially fast (in terms of settling time) using only a proportional controller.
+
+\subsection{Root Locus}
+To design the Root Locus (RL), we require the open-loop transfer function, given by the formula:
+
+\noindent
+\begin{minipage}{0.5\textwidth}
+    \textbf{Root Locus}\\
+    To design the Root Locus (RL), we require the open-loop transfer function, given by the formula:
+    \begin{equation}
+        L(s) = \frac{K_p}{s(s+1)}
+    \end{equation}
+    Below, both the Root Locus plot.
+\end{minipage}
+\hfill
+\begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{fig7.png}
+    \caption{Fig. 8.}{ Root Locus of the system} 
+    \label{fig:root_locus}
+\end{minipage}
+
+\vspace{1em}
+The poles of the open-loop transfer function are located at $s_1 = 0$ and $s_2 = -1$.
+
+\subsection*{Analysis of the Root Locus Results}
+
+As expected, the \textbf{Root Locus} explains why, regardless of how much the gain was increased, it was impossible to reduce the time required for the system to stop oscillating. 
+
+The \textbf{settling time} ($t_s$) is determined exclusively by the \textbf{real part} ($\sigma$) of the closed-loop poles according to the relationship $t_s \approx 4/|\sigma|$. In the Root Locus of this specific system, once the poles meet and become complex, their real part remains fixed at:
+\begin{equation}
+    \text{Re}(s) = -0.5
+\end{equation}
+
+This constant real part, regardless of the gain $K_p$, explains why all step response curves in our simulation reached a steady state within the same time frame (approximately 8 seconds). The increase in gain only moved the poles vertically (further away from the real axis), which increased the \textbf{imaginary part} and, consequently, the frequency of the oscillations.
+
+\subsection{Root Locus for PD Controller}
+The use of a \textbf{PD controller} provides the solution to the performance limitations identified in the previous sections. The transfer function of the controller is given by:
+
+\begin{equation}
+    C(s) = K_p + K_d s = K_d \left( s + \frac{K_p}{K_d} \right)
+\end{equation}
+
+From the expression for $C(s)$, it is evident that the PD controller introduces a \textbf{zero} at the location:
+\begin{equation}
+    z = -\frac{K_p}{K_d}
+\end{equation}
+
+By strategically placing this zero, we can reshape the Root Locus to improve the system's damping and significantly reduce the settling time. Below, a comparison of the step responses for the P and PD control cases is presented.
+
+\setcounter{figure}{8} 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig8.png}
+    \caption{Comparison of System Responses of P and PD Controllers}
+    \label{fig:p_pd}
+\end{figure}
+
+We observe that the derivative term (D) predicts the error and brakes the system in time, allowing us to increase the gain without causing instability or large oscillations. The Root Locus of the system with the PD controller is shown below.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig9.png} 
+    \caption{Root Locus for PD Controller}
+    \label{fig:p_controller_response}
+\end{figure}
+
+\subsection{"Response to Constant Non-Zero Disturbance and Bode Plot Design}
+From the differential equation describing the system, by transitioning to the Laplace domain, we obtain:
+
+\begin{equation}
+    X(s)(s^2 + s) = U(s) + D(s)
+\end{equation}
+
+The control law using a PD controller with zero reference is defined as: $U(s) = -C(s)X(s)$, which leads to:
+\begin{equation}
+    X(s)(s^2 + s + C(s)) = D(s)
+\end{equation}
+
+The disturbance-to-output transfer function is derived as:
+\begin{equation}
+    T_d(s) = \frac{X(s)}{D(s)} = \frac{1}{s^2 + s + C(s)}
+\end{equation}
+
+Substituting the PD controller $C(s) = K_d s + K_p$, we obtain:
+\begin{equation}
+    T_d(s) = \frac{1}{s^2 + (1 + K_d)s + K_p}
+\end{equation}
+
+The following sections present the step disturbance response and the Bode diagram, accompanied by the source code used for their generation.
+
+\begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{fig10.png}
+    \caption{Fig.11 }{ Bode Diagram} 
+    \label{fig:root_locus}
+\end{minipage}
+
+For a constant disturbance, the final value of the output is calculated using the \textbf{Final Value Theorem} as follows:
+
+\begin{equation}
+    e_{ss} = \lim_{s \to 0} s T_d(s) \frac{1}{s} = \frac{1}{K_p}
+\end{equation}
+
+In conclusion, it is observed that a \textbf{steady-state error} persists. The system deviates from the zero position and reaches equilibrium at $1/K_p$. Because the controller cannot fully reject the disturbance, the addition of an \textbf{Integral (I) term} is necessary to achieve zero steady-state error.
+
+\subsection{PID Controller Design}
+The PID Controller is defined by the following transfer function:
+\begin{equation}
+    C(s) = K_p + K_d s + \frac{K_i}{s}
+\end{equation}
+
+The closed-loop transfer function from the disturbance input to the output is given by:
+\begin{equation}
+    T_d(s) = \frac{G(s)}{1 + C(s)G(s)}
+\end{equation}
+
+
+For the final implementation, the following parameters were selected:
+\begin{itemize}
+    \item $K_p = 20$ (Proportional Gain)
+    \item $K_d = 10$ (Derivative Gain)
+    \item $K_i = 5$ (Integral Gain)
+\end{itemize}
+
+\begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{fig11.png}
+    \caption{Fig.12 }{ Bode Diagram} 
+    \label{fig:root_locus}
+\end{minipage}
+
+From the analysis presented above, we conclude that the addition of the \textbf{integral term (I)} is essential when the objective is to completely eliminate the influence of external constant loads or disturbances. 
+
+While the Proportional (P) and Derivative (D) terms are effective in shaping the transient response and providing stability, only the Integral term provides the necessary compensation to ensure a \textbf{zero steady-state error} ($e_{ss} = 0$). By integrating the error over time, the controller continues to increase the corrective action until the disturbance is fully rejected and the system reaches its desired equilibrium.
+
+\subsection{Frequency Response Analysis to a Sinusoide Reference}
+
+To analyze how the system behaves when subjected to sinusoidal signals of varying frequencies, we utilize the \textbf{closed-loop Bode plot} from the reference input ($r$) to the output ($x$).
+
+The system's tracking capability is a direct function of the input frequency. At \textbf{low frequencies}, the system maintains unity gain ($0$ dB) and minimal phase displacement, allowing for near-perfect tracking.
+
+However, at \textbf{high frequencies}, we observe a significant reduction in magnitude (attenuation in negative dB) and an increase in phase lag. This indicates that the system acts as a \textbf{low-pass filter}, unable to follow rapid command changes, leading to an output that is diminished in amplitude and delayed in time.
+
+
+The following closed-loop Bode diagram and the corresponding MATLAB code illustrate this frequency-dependent behavior.
+
+\begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{fig12.png}
+    \caption{Fig. 13. }{Bode Diagram Analysis}
+    \label{fig:bode_analysis}
+\end{minipage}
+
+\subsection{Integrator Windup}
+As shown in the diagrams, when the control signal exceeds the system's physical limits, driving the actuator into saturation, the phenomenon of \textbf{integrator windup} occurs. Specifically, even if the error begins to decrease or change sign, the integral value remains high due to the error accumulation during the saturation period. This condition leads to excessive overshoot and oscillations, significantly delaying the system's return to equilibrium.
+
+\begin{figure}[htbp] 
+    \centering
+    \includegraphics[width=0.48\textwidth]{fig13.png} 
+    \caption{Step response under actuator saturation illustrating the integrator windup effect.}
+    \label{fig:integrator_windup}
+\end{figure}
+
+\section{Conclusion}
+This study demonstrated the iterative design process for speed and position control systems. For the first-order cruise control system, the addition of an integral term was necessary to eliminate steady-state error. For the second-order position control system, the PD controller allowed for improved damping and faster settling times, while the full PID controller addressed disturbance rejection. Finally, frequency-domain analysis and anti-windup considerations highlighted the practical limits of controller design in real-world applications.
+
+\end{document}
