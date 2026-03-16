@@ -55,7 +55,7 @@ This project is structured into two parts, each addressing distinct analytical s
 \end{abstract}
 
 \begin{IEEEkeywords}
-Control Systems, P Controllers, PD Controller, PID Controller, MATLAB
+Control Systems, P Controllers, PD Controllers, PID Controllers, MATLAB, Integrator Windup
 \end{IEEEkeywords}
 
 \section{SECTION 1}
@@ -112,7 +112,7 @@ Therefore, the closed-loop transfer function is:
 
 Using MATLAB, the step responses were calculated for the following gain values: $K = 1, 5, 10, 50$.
 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.5\textwidth]{fig1.png}
     \caption{Step response of the cruise control system for different gain values ($K=1, 5, 10, 50$). The plot illustrates the reduction in steady-state error as the gain $K$ increases.}
@@ -140,7 +140,7 @@ To ensure stability, $1 + K_p > 0$ and $K_i > 0$.
 
 We choose the following values: $K_p = K_i = 1$.
 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.5\textwidth]{fig2.png} 
     \caption{Step response of the cruise control system using a Proportional (P) controller. As shown in the legend, increasing the gain $K_p$ reduces the steady-state error (from 0.50 down to 0.02), but the error remains non-zero.}
@@ -174,7 +174,7 @@ We observe that two additional poles appear at $s = -100$. Consequently, when th
 
 The following graphs illustrate the oscillations introduced by the actuator dynamics in comparison to the unstable behavior of the system when a pure time delay of $0.01$ sec is applied instead of the actuator dynamics.
 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.3\textwidth]{fig3.1.png}
     \caption{Impact of high gain on non-ideal systems}
@@ -220,7 +220,7 @@ Using the values above in the equilibrium equation $\dot{v} = -\alpha v + bu + d
     0 = -1.1v + 0.9(1) + 0.1 \implies 1.1v = 1.0 \implies v \approx 0.909
 \end{equation}
 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.5\textwidth]{fig4.png} 
     \caption{Response, Only Feedforward}
@@ -235,7 +235,7 @@ From the graph above, we observe that in the ideal case, the system converges to
     \implies u = k_r r + k_p(r - y)
 \end{equation}
 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.5\textwidth]{fig5.png} 
     \caption{Feedback and Feedforward Response}
@@ -265,7 +265,7 @@ By introducing a proportional controller $C(s) = K_p$, the resulting closed-loop
     T(s) = \frac{K_p G(s)}{1 + K_p G(s)} = \frac{K_p}{s^2 + s + K_p}
 \end{equation}
 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.5\textwidth]{fig6.png} 
     \caption{Step Response}
@@ -277,8 +277,9 @@ From the graph above, we conclude that regardless of how much the gain is increa
 \subsection{Root Locus}
 To design the Root Locus (RL), we require the open-loop transfer function, given by the formula:
 
+\begin{figure}[t!]
 \noindent
-\begin{minipage}{0.5\textwidth}
+\begin{minipage}{0.48\textwidth}
     \textbf{Root Locus}\\
     To design the Root Locus (RL), we require the open-loop transfer function, given by the formula:
     \begin{equation}
@@ -287,12 +288,13 @@ To design the Root Locus (RL), we require the open-loop transfer function, given
     Below, both the Root Locus plot.
 \end{minipage}
 \hfill
-\begin{minipage}{0.5\textwidth}
+\begin{minipage}{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{fig7.png}
     \caption{Fig. 8.}{ Root Locus of the system} 
     \label{fig:root_locus}
 \end{minipage}
+\end{figure}
 
 \vspace{1em}
 The poles of the open-loop transfer function are located at $s_1 = 0$ and $s_2 = -1$.
@@ -323,7 +325,7 @@ From the expression for $C(s)$, it is evident that the PD controller introduces 
 By strategically placing this zero, we can reshape the Root Locus to improve the system's damping and significantly reduce the settling time. Below, a comparison of the step responses for the P and PD control cases is presented.
 
 \setcounter{figure}{8} 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.5\textwidth]{fig8.png}
     \caption{Comparison of System Responses of P and PD Controllers}
@@ -332,7 +334,7 @@ By strategically placing this zero, we can reshape the Root Locus to improve the
 
 We observe that the derivative term (D) predicts the error and brakes the system in time, allowing us to increase the gain without causing instability or large oscillations. The Root Locus of the system with the PD controller is shown below.
 
-\begin{figure}[htbp]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=0.5\textwidth]{fig9.png} 
     \caption{Root Locus for PD Controller}
@@ -363,12 +365,12 @@ Substituting the PD controller $C(s) = K_d s + K_p$, we obtain:
 
 The following sections present the step disturbance response and the Bode diagram, accompanied by the source code used for their generation.
 
-\begin{minipage}{0.45\textwidth}
+\begin{figure}[t!]
     \centering
-    \includegraphics[width=\textwidth]{fig10.png}
+    \includegraphics[width=0.45\textwidth]{fig10.png}
     \caption{Fig.11 }{ Bode Diagram} 
     \label{fig:root_locus}
-\end{minipage}
+\end{figure}
 
 For a constant disturbance, the final value of the output is calculated using the \textbf{Final Value Theorem} as follows:
 
@@ -397,12 +399,12 @@ For the final implementation, the following parameters were selected:
     \item $K_i = 5$ (Integral Gain)
 \end{itemize}
 
-\begin{minipage}{0.5\textwidth}
+\begin{figure}[t!]
     \centering
-    \includegraphics[width=\textwidth]{fig11.png}
+    \includegraphics[width=0.5\textwidth]{fig11.png}
     \caption{Fig.12 }{ Bode Diagram} 
     \label{fig:root_locus}
-\end{minipage}
+\end{figure}
 
 From the analysis presented above, we conclude that the addition of the \textbf{integral term (I)} is essential when the objective is to completely eliminate the influence of external constant loads or disturbances. 
 
@@ -416,22 +418,21 @@ The system's tracking capability is a direct function of the input frequency. At
 
 However, at \textbf{high frequencies}, we observe a significant reduction in magnitude (attenuation in negative dB) and an increase in phase lag. This indicates that the system acts as a \textbf{low-pass filter}, unable to follow rapid command changes, leading to an output that is diminished in amplitude and delayed in time.
 
-
 The following closed-loop Bode diagram and the corresponding MATLAB code illustrate this frequency-dependent behavior.
 
-\begin{minipage}{0.5\textwidth}
+\begin{figure}[t!]
     \centering
-    \includegraphics[width=\textwidth]{fig12.png}
+    \includegraphics[width=0.5\textwidth]{fig12.png}
     \caption{Fig. 13. }{Bode Diagram Analysis}
     \label{fig:bode_analysis}
-\end{minipage}
+\end{figure}
 
 \subsection{Integrator Windup}
 As shown in the diagrams, when the control signal exceeds the system's physical limits, driving the actuator into saturation, the phenomenon of \textbf{integrator windup} occurs. Specifically, even if the error begins to decrease or change sign, the integral value remains high due to the error accumulation during the saturation period. This condition leads to excessive overshoot and oscillations, significantly delaying the system's return to equilibrium.
 
-\begin{figure}[htbp] 
+\begin{figure}[t!]
     \centering
-    \includegraphics[width=0.48\textwidth]{fig13.png} 
+    \includegraphics[width=0.5\textwidth]{fig13.png} 
     \caption{Step response under actuator saturation illustrating the integrator windup effect.}
     \label{fig:integrator_windup}
 \end{figure}
