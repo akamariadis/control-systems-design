@@ -24,3 +24,20 @@ title('Απόκριση Ταχύτητας Κινητήρα (Κλειστός Β
 xlabel('Χρόνος (sec)');
 ylabel('Ταχύτητα \omega (rad/s)');
 grid on;
+
+clear;
+close all;
+clf;
+clc;
+
+A_cl = [-15, 0; 1, -10];
+Bd = [0; 100];
+C = [0, 1];
+Dd = 0;
+sys_disturbance = ss(A_cl, Bd, C, Dd);
+disp('Συνάρτηση Μεταφοράς από d σε y:');
+tf(sys_disturbance)
+figure;
+bode(sys_disturbance);
+grid on;
+title('Διάγραμμα Bode Κλειστού Βρόχου (Διαταραχή -> Έξοδος)');
