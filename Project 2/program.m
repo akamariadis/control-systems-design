@@ -71,3 +71,29 @@ figure;
 bode(sys_dist_int);
 grid on;
 title('Bode Διαταραχής -> Εξόδου (Με Ολοκληρωτή)');
+
+clear;
+close all;
+clf;
+clc;
+
+A = [-2, -0.02; 1, -10];
+B = [2; 0];
+C = [0, 1];
+D = 0;
+
+P_ctrl = [-10, -15];
+K = place(A, B, P_ctrl);
+kr = -1 / (C * inv(A - B*K) * B);
+
+P_obs = [-30, -40];
+L = place(A', C', P_obs)';
+
+A_obs = A - L*C;
+B_obs = [B, L];
+C_obs = eye(2);
+D_obs = [0, 0];
+
+disp('Κέρδη Ελεγκτή K:'); disp(K);
+disp('Κέρδος Αναφοράς kr:'); disp(kr);
+disp('Κέρδη Παρατηρητή L:'); disp(L);
